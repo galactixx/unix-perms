@@ -8,12 +8,7 @@ from py_perms.octals import (
     from_octal_integer,
     OctalConfig
 )
-from py_perms.permissions import (
-    BasePermissions,
-    GroupPermissions,
-    OthersPermissions,
-    OwnerPermissions
-)
+from py_perms.permissions import OctalPermissions
 
 class PermissionsConfig(BaseModel):
     """
@@ -42,18 +37,7 @@ class PermissionsByte:
         self._config = config
 
         # set permissions for specific authority
-        self.permissions: BasePermissions = None
-
-        if self.authority == 'owner':
-            self.permissions = OwnerPermissions()
-        elif self.authority == 'group':
-            self.permissions = GroupPermissions()
-        elif self.authority == 'others':
-            self.permissions = OthersPermissions()
-        else:
-            raise ValueError(
-                f"{self.authority} is not a valid 'authority' value"
-            )
+        self.permissions = OctalPermissions(authority=self.authority)
         
     def __sub__(self, permission_byte: 'PermissionsByte') -> 'PermissionsByte':
         if not isinstance(permission_byte, PermissionsByte):
