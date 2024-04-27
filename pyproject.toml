@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "unix-perms"
+version = "0.1.0"
+description = "Manage and interpret Linux file permissions with a Python package that provides intuitive tools for creating, validating, and describing permission codes."
+authors = ["galactixx"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.7.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.1.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

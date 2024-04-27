@@ -46,7 +46,7 @@ class PermissionsByte:
                 f'can only add PermissionsByte (not "{type(permission_byte)}") to PermissionsByte'
             )
         
-        return PermissionsCode.from_permissions_bytes(
+        return PermissionsCode._from_permissions_bytes(
             permissions_byte_one=self, permissions_byte_two=permission_byte
         )
 
@@ -140,7 +140,7 @@ class PermissionsCode:
             raise TypeError(
                 f'can only add PermissionsByte (not "{type(permission_byte)}") to PermissionsCode'
             )
-        
+
         setattr(self, permission_byte.authority, permission_byte)
         return self
 
@@ -167,7 +167,7 @@ class PermissionsCode:
         return class_arguments
     
     @classmethod
-    def from_permissions_bytes(
+    def _from_permissions_bytes(
         cls,
         permissions_byte_one: PermissionsByte,
         permissions_byte_two: PermissionsByte
@@ -181,12 +181,10 @@ class PermissionsCode:
             class_parameters.remove(byte.authority)
             class_arguments.update({byte.authority: byte})
 
-        remaining_parameter = class_parameters[0]
-        class_arguments.update({
-            remaining_parameter: PermissionsByte(
-                authority=remaining_parameter, config=PermissionsConfig()
+        for parameter in class_parameters:
+            class_arguments.update(
+                {parameter: PermissionsByte(authority=parameter, config=PermissionsConfig())}
             )
-        })
 
         return cls(**class_arguments)
 

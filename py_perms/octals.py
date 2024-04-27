@@ -5,6 +5,8 @@ from py_perms.exceptions import InvalidOctalError
 
 OctalConfig = namedtuple('OctalConfig', ['description', 'read', 'write', 'execute'])
 
+VALID_OCTAL_MODE_BITS: Set[str] = {str(num) for num in range(8)}
+
 OCTAL_MODE_BIT_0 = OctalConfig(description='No permissions', read=False, write=False, execute=False)
 OCTAL_MODE_BIT_1 = OctalConfig(description='Execute permission only', read=False, write=False, execute=True)
 OCTAL_MODE_BIT_2 = OctalConfig(description='Write permission only', read=False, write=True, execute=False)
@@ -37,28 +39,24 @@ def _get_octal_bit_config(octal_bit: int) -> OctalConfig:
 def from_octal_bit_to_config(octal_bit: Union[str, int]) -> OctalConfig:
     """
     """
+    if not isinstance(octal_bit, (str, int)):
+        raise TypeError(f"{type(octal_bit)} is not a valid 'octal_bit' type")
+
     if isinstance(octal_bit, str):
         try:
-            octal_bit_as_int = int(octal_bit)
+            octal_bit = int(octal_bit)
         except ValueError:
             raise InvalidOctalError(
                 "expecting a string representation of the octal number being a single digit integer"
             )
-        else:
-            return _get_octal_bit_config(octal_bit=octal_bit_as_int)
-    elif isinstance(octal_bit, int):
-        return _get_octal_bit_config(octal_bit=octal_bit)
-    else:
-        raise TypeError(
-            f"{type(octal_bit)} is not a valid 'octal_bit' type"
-        )
+
+    octal_config = _get_octal_bit_config(octal_bit=octal_bit)
+    return octal_config
 
 
 def _octal_integer_validation(octal_int_as_str: str) -> str:
     """
     """
-    valid_bits: Set[str] = {str(num) for num in range(8)}
-
     octal_string_length: int = len(octal_int_as_str)
 
     if not 1 <= octal_string_length <= 3:
@@ -66,7 +64,7 @@ def _octal_integer_validation(octal_int_as_str: str) -> str:
             'invalid octal representation length, must have a length ranging from 0 to 3'
         )
     
-    any_invalid_bits: bool = any(bit not in valid_bits for bit in octal_int_as_str)
+    any_invalid_bits: bool = any(bit not in VALID_OCTAL_MODE_BITS for bit in octal_int_as_str)
     if any_invalid_bits:
         raise InvalidOctalError(
             'invalid bits in octal representation, bits must range from 0 to 7'
@@ -87,50 +85,60 @@ def _to_octal_str_repr_conversion(octal_object: int) -> str:
 def from_decimal_repr_to_octal_integer(octal_object: Union[str, int]) -> str:
     """
     """
-    if isinstance(octal_object, str):
-        if octal_object.startswith('0o'):
-            try:
-                octal_decimal = int(octal_object, 8)
-            except ValueError:
-                raise InvalidOctalError("must be a valid octal literal")
-            else:
-                return _to_octal_str_repr_conversion(octal_object=octal_decimal)
-        else:
-            try:
-                octal_decimal = int(octal_object)
-            except ValueError:
-                raise InvalidOctalError("must be a valid decimal representation of an octal")
-            else:
-                return _to_octal_str_repr_conversion(octal_object=octal_decimal)
-    elif isinstance(octal_object, int):
-        return _to_octal_str_repr_conversion(octal_object=octal_object)
-    else:
+    if not isinstance(octal_object, (str, int)):
         raise TypeError(
-            f"{type(octal_decimal)} is not a valid 'octal_decimal' type, must be of type ('str', 'int')"
-        )
+            f"{type(octal_object)} is not a valid 'octal_decimal' type, must be of type ('str', 'int')"
+        )  
+
+    if isinstance(octal_object, str):
+        int_base = 10
+        message = "must be a valid decimal representation of an octal"
+
+        if octal_object.startswith('0o'):
+            int_base = 8
+            message = "must be a valid octal literal"
+
+        try:
+            octal_object = int(octal_object, int_base)
+        except ValueError:
+            raise InvalidOctalError(message)
     
+    octal_integer: str = _to_octal_str_repr_conversion(octal_object=octal_object)
+    return octal_integer
+
 
 def from_octal_integer(octal_object: Union[str, int]) -> str:
     """
     """
-    if isinstance(octal_object, str):
-        return _octal_integer_validation(octal_int_as_str=octal_object)
-    elif isinstance(octal_object, int):
-        octal_object = str(octal_object)
-        return _octal_integer_validation(octal_int_as_str=octal_object)
-    else:
+    if not isinstance(octal_object, (str, int)):
         raise TypeError(
             f"{type(octal_object)} is not a valid 'octal_object' type, must be of type ('str', 'int')"
         )
-    
+
+    if isinstance(octal_object, int):
+        octal_object = str(octal_object)
+
+    octal_integer: str = _octal_integer_validation(octal_int_as_str=octal_object)
+    return octal_integer
+
+
+def is_decimal_repr(octal_object: Union[str, int]) -> bool:
+    """
+    """
+    try:
+        _ = from_decimal_repr_to_octal_integer(octal_object=octal_object)
+        is_decimal_repr = True
+    except InvalidOctalError:
+        is_decimal_repr = False
+    return is_decimal_repr
+
 
 def is_octal_integer(octal_integer: Union[str, int]) -> bool:
     """
     """
     try:
         _ = from_octal_integer(octal_object=octal_integer)
+        is_octal_int = True
     except InvalidOctalError:
         is_octal_int = False
-    else:
-        is_octal_int = True
     return is_octal_int
