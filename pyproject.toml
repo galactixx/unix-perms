@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Manage and interpret Linux file permissions with a Python package that provides intuitive tools for creating, validating, and describing permission codes."
 authors = ["galactixx"]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "MIT LICENSE"
 keywords = [
     "unix",
     "permissions",
