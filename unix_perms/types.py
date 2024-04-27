@@ -2,14 +2,11 @@ from typing import Dict, Literal, Union
 
 from pydantic import BaseModel
 
-from unix_perms.utils import get_all_class_parameters
+from unix_perms.octals import (OctalConfig, from_decimal_repr_to_octal_integer,
+                               from_octal_bit_to_config, from_octal_integer)
 from unix_perms.permissions import OctalPermissions
-from unix_perms.octals import (
-    from_decimal_repr_to_octal_integer,
-    from_octal_bit_to_config,
-    from_octal_integer,
-    OctalConfig
-)
+from unix_perms.utils import get_all_class_parameters
+
 
 class PermissionsConfig(BaseModel):
     """
@@ -45,7 +42,7 @@ class PermissionsByte:
             raise TypeError(
                 f'can only add PermissionsByte (not "{type(permission_byte)}") to PermissionsByte'
             )
-        
+
         return PermissionsCode._from_permissions_bytes(
             permissions_byte_one=self, permissions_byte_two=permission_byte
         )
@@ -58,7 +55,7 @@ class PermissionsByte:
             f'<{self.__class__.__name__} authority={self.authority} '
             f'permissions_code={self.permissions_code}>'
         )
-        
+
     @property
     def read_permission(self) -> bool:
         return self._config.read
@@ -70,21 +67,21 @@ class PermissionsByte:
     @property
     def execute_permission(self) -> bool:
         return self._config.execute
-        
+
     @property
     def permissions_code(self) -> str:
         base_permissions = self.permissions.no_permissions
         if self._config.read:
             base_permissions |= self.permissions.read
-        
+
         if self._config.write:
             base_permissions |= self.permissions.write
-        
+
         if self._config.execute:
             base_permissions |= self.permissions.execute
 
         return format(base_permissions, 'o').zfill(3)
-    
+
     @property
     def permissions_description(self) -> str:
         permissions_code = self.permissions_code.strip('0')
@@ -102,7 +99,7 @@ class PermissionsByte:
             'write': self.write_permission,
             'execute': self.execute_permission
         }
-    
+
     @property
     def permissions_code_as_decimal_repr(self) -> int:
         return int(self.permissions_code, 8)
@@ -128,12 +125,22 @@ class PermissionsCode:
         self.owner = owner
         self.group = group
         self.others = others
-    
+
     def __sub__(self, permission_byte: PermissionsByte) -> 'PermissionsCode':
         if not isinstance(permission_byte, PermissionsByte):
             raise TypeError(
                 f'can only subtract PermissionsByte (not "{type(permission_byte)}") from PermissionsCode'
             )
+
+        permissions_code: int = self.permissions_code_as_decimal_repr
+        permissions_code_updated: int = (
+            permissions_code & ~permission_byte.permissions_code_as_decimal_repr
+        )
+        class_arguments: Dict[str, PermissionsByte] = PermissionsCode.__transform_permission_code(
+            permissions_code_updated=permissions_code_updated
+        )
+
+        return PermissionsCode(**class_arguments)
 
     def __add__(self, permission_byte: PermissionsByte) -> 'PermissionsCode':
         if not isinstance(permission_byte, PermissionsByte):
@@ -141,8 +148,15 @@ class PermissionsCode:
                 f'can only add PermissionsByte (not "{type(permission_byte)}") to PermissionsCode'
             )
 
-        setattr(self, permission_byte.authority, permission_byte)
-        return self
+        permissions_code: int = self.permissions_code_as_decimal_repr
+        permissions_code_updated: int = (
+            permissions_code | permission_byte.permissions_code_as_decimal_repr
+        )
+        class_arguments: Dict[str, PermissionsByte] = PermissionsCode.__transform_permission_code(
+            permissions_code_updated=permissions_code_updated
+        )
+
+        return PermissionsCode(**class_arguments)
 
     def __str__(self) -> str:
         return repr(self)
@@ -153,19 +167,29 @@ class PermissionsCode:
         )
 
     @staticmethod
+    def __transform_permission_code(permissions_code_updated: int) -> Dict[str, PermissionsByte]:
+        permission_code: str = from_decimal_repr_to_octal_integer(
+            octal_object=permissions_code_updated
+        )
+        class_arguments: Dict[str, PermissionsByte] = PermissionsCode.__generate_class_arguments_from_code(
+            permission_code=permission_code
+        )
+        return class_arguments
+
+    @staticmethod
     def __generate_class_arguments_from_code(permission_code: str) -> Dict[str, PermissionsByte]:
         owner_config = PermissionsConfig.from_octal_bit(octal_bit=permission_code[0])
         group_config = PermissionsConfig.from_octal_bit(octal_bit=permission_code[1])
         others_config = PermissionsConfig.from_octal_bit(octal_bit=permission_code[2])
 
         class_arguments = {
-            'owner_byte': PermissionsByte(authority='owner', config=owner_config),
-            'group_byte': PermissionsByte(authority='group', config=group_config),
-            'others_byte': PermissionsByte(authority='others',config=others_config)
+            'owner': PermissionsByte(authority='owner', config=owner_config),
+            'group': PermissionsByte(authority='group', config=group_config),
+            'others': PermissionsByte(authority='others',config=others_config)
         }
 
         return class_arguments
-    
+
     @classmethod
     def _from_permissions_bytes(
         cls,
@@ -222,7 +246,7 @@ class PermissionsCode:
     @property
     def permissions_code_as_int(self) -> int:
         return int(self.permissions_code)
-    
+
     @property
     def permissions_code_as_octal_literal(self) -> str:
         return f'0o{self.permissions_code}'

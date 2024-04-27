@@ -1,16 +1,13 @@
 import pytest
 
-from unix_perms import (
-    InvalidOctalError,
-    PermissionsByte,
-    PermissionsCode,
-    PermissionsConfig
-)
+from unix_perms import (InvalidOctalError, PermissionsByte, PermissionsCode,
+                        PermissionsConfig)
+
 
 def test_permissions_config() -> None:
     """
-    Testing the 'from_octal_bit' class method from 'PermissionsConfig' which creates a 'PermissionsConfig' object
-    from an octal bit.
+    Testing the 'from_octal_bit' class method from 'PermissionsConfig'
+    which creates a 'PermissionsConfig' object from an octal bit.
     """
     ALL_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=True, execute=True)
     READ_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=False, execute=False)
@@ -48,7 +45,7 @@ def test_permissions_byte() -> None:
     assert owner_permissions.permissions_description_detailed == {
         'authority': 'owner', 'code': '200', 'read': False, 'write': True, 'execute': False
     }
-    
+
     group_permissions = PermissionsByte(authority='group', config=ALL_PERMISSIONS_CONFIG)
     permission_code = owner_permissions + group_permissions
 
@@ -76,3 +73,19 @@ def test_permissions_code() -> None:
     assert permissions_code.permissions_code_as_octal_literal == '0o274'
     assert permissions_code.permissions_code_as_int == 274
     assert permissions_code.permissions_code_as_decimal_repr == 188
+
+    group_permissions_new = PermissionsByte(authority='group', config=ALL_PERMISSIONS_CONFIG)
+    permission_code_sub = permissions_code - group_permissions_new
+
+    assert permission_code_sub.permissions_code == '204'
+    assert permission_code_sub.permissions_code_as_octal_literal == '0o204'
+    assert permission_code_sub.permissions_code_as_int == 204
+    assert permission_code_sub.permissions_code_as_decimal_repr == 132
+
+    others_permissions_new = PermissionsByte(authority='others', config=WRITE_PERMISSIONS_CONFIG)
+    permission_code_add = permissions_code + others_permissions_new
+
+    assert permission_code_add.permissions_code == '276'
+    assert permission_code_add.permissions_code_as_octal_literal == '0o276'
+    assert permission_code_add.permissions_code_as_int == 276
+    assert permission_code_add.permissions_code_as_decimal_repr == 190
