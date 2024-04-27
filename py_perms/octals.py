@@ -113,5 +113,24 @@ def from_decimal_repr_to_octal_integer(octal_object: Union[str, int]) -> str:
 def from_octal_integer(octal_object: Union[str, int]) -> str:
     """
     """
-    octal_int_string_repr: str = _octal_integer_validation(octal_int_as_str=octal_object)
-    return octal_int_string_repr
+    if isinstance(octal_object, str):
+        return _octal_integer_validation(octal_int_as_str=octal_object)
+    elif isinstance(octal_object, int):
+        octal_object = str(octal_object)
+        return _octal_integer_validation(octal_int_as_str=octal_object)
+    else:
+        raise TypeError(
+            f"{type(octal_object)} is not a valid 'octal_object' type, must be of type ('str', 'int')"
+        )
+    
+
+def is_octal_integer(octal_integer: Union[str, int]) -> bool:
+    """
+    """
+    try:
+        _ = from_octal_integer(octal_object=octal_integer)
+    except InvalidOctalError:
+        is_octal_int = False
+    else:
+        is_octal_int = True
+    return is_octal_int
