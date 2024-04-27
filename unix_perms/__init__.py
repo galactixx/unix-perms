@@ -1,6 +1,6 @@
-from py_perms.exceptions import InvalidOctalError
-from py_perms.permissions import OctalPermissions
-from py_perms.octals import (
+from unix_perms.exceptions import InvalidOctalError
+from unix_perms.permissions import OctalPermissions
+from unix_perms.octals import (
     from_decimal_repr_to_octal_integer,
     from_octal_bit_to_config,
     from_octal_integer,
@@ -8,7 +8,7 @@ from py_perms.octals import (
     is_octal_integer,
     OctalConfig
 )
-from py_perms.types import (
+from unix_perms.types import (
     PermissionsByte,
     PermissionsCode,
     PermissionsConfig

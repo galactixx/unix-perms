@@ -1,7 +1,7 @@
 import stat
 import pytest
 
-from py_perms import (
+from unix_perms import (
     from_decimal_repr_to_octal_integer,
     from_octal_bit_to_config,
     from_octal_integer,
@@ -11,7 +11,7 @@ from py_perms import (
     OctalPermissions
 )
 
-from py_perms.octals import (
+from unix_perms.octals import (
     OCTAL_MODE_BIT_0,
     OCTAL_MODE_BIT_1,
     OCTAL_MODE_BIT_2,

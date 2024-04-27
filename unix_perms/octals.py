@@ -1,7 +1,7 @@
 from typing import Dict, Set, Union
 from collections import namedtuple
 
-from py_perms.exceptions import InvalidOctalError
+from unix_perms.exceptions import InvalidOctalError
 
 OctalConfig = namedtuple('OctalConfig', ['description', 'read', 'write', 'execute'])
 

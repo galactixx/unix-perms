@@ -1,6 +1,6 @@
 import pytest
 
-from py_perms import (
+from unix_perms import (
     InvalidOctalError,
     PermissionsByte,
     PermissionsCode,
