@@ -1,132 +1,85 @@
 import stat
+
 import pytest
 
-from unix_perms import (
-    from_decimal_repr_to_octal_integer,
-    from_octal_bit_to_config,
-    from_octal_integer,
-    InvalidOctalError,
-    is_decimal_repr,
-    is_octal_integer,
-    OctalPermissions
-)
-
-from unix_perms.octals import (
-    OCTAL_MODE_BIT_0,
-    OCTAL_MODE_BIT_1,
-    OCTAL_MODE_BIT_2,
-    OCTAL_MODE_BIT_3,
-    OCTAL_MODE_BIT_4,
-    OCTAL_MODE_BIT_5,
-    OCTAL_MODE_BIT_6,
-    OCTAL_MODE_BIT_7
-)
+from unix_perms import (InvalidOctalError, OctalPermissions,
+                        from_octal_digit_to_config,
+                        from_octal_to_permissions_code, is_permissions_code)
+from unix_perms.octals import (OCTAL_MODE_DIGIT_0, OCTAL_MODE_DIGIT_1,
+                               OCTAL_MODE_DIGIT_2, OCTAL_MODE_DIGIT_3,
+                               OCTAL_MODE_DIGIT_4, OCTAL_MODE_DIGIT_5,
+                               OCTAL_MODE_DIGIT_6, OCTAL_MODE_DIGIT_7)
 
 
-def test_is_octal_integer() -> None:
+def test_is_permissions_code() -> None:
     """
-    Testing the 'is_octal_integer' boolean function which determines if an input is a valid octal integer.
+    Testing the 'is_permissions_code' boolean function which determines if an octal representation is a
+    valid Unix permissions code.
     """
-    assert not is_octal_integer(octal_integer='999')
-    assert not is_octal_integer(octal_integer='009')
-    assert not is_octal_integer(octal_integer=934)
-    assert not is_octal_integer(octal_integer=-1)
-    assert not is_octal_integer(octal_integer='-318')
-    assert not is_octal_integer(octal_integer='4173')
-    assert not is_octal_integer(octal_integer=6665)
-    assert is_octal_integer(octal_integer=0)
-    assert is_octal_integer(octal_integer='010')
-    assert is_octal_integer(octal_integer='111')
-    assert is_octal_integer(octal_integer='777')
-    assert is_octal_integer(octal_integer=163)
-    assert is_octal_integer(octal_integer='416')
-    assert is_octal_integer(octal_integer='725')
+    assert not is_permissions_code(octal=0o1052)
+    assert not is_permissions_code(octal=0o7433)
+    assert not is_permissions_code(octal=999)
+    assert not is_permissions_code(octal='999')
+    assert not is_permissions_code(octal='009')
+    assert not is_permissions_code(octal='-318')
+    assert not is_permissions_code(octal='4173')
+    assert is_permissions_code(octal='010')
+    assert is_permissions_code(octal='111')
+    assert is_permissions_code(octal='777')
+    assert is_permissions_code(octal='416')
+    assert is_permissions_code(octal='725')
+    assert is_permissions_code(octal=0o070 | 0o001)
+    assert is_permissions_code(octal=0o001)
+    assert is_permissions_code(octal=438)
+    assert is_permissions_code(octal=0o111 | 0o200)
 
 
-def test_is_decimal_repr() -> None:
+def test_from_octal_to_permissions_code() -> None:
     """
-    Testing the 'is_decimal_repr' boolean function which determines if an input is a
-    valid octal decimal representation.
+    Testing the 'from_octal_to_permissions_code' function which converst an octal representation to a
+    Unix permissions code.
     """
-    assert not is_decimal_repr(octal_object='not a decimal')
-    assert not is_decimal_repr(octal_object=0o1052)
-    assert not is_decimal_repr(octal_object=0o7433)
-    assert not is_decimal_repr(octal_object=999)
-    assert not is_decimal_repr(octal_object=-0o322)
-    assert not is_decimal_repr(octal_object='0o813')
-    assert is_decimal_repr(octal_object='0o443')
-    assert is_decimal_repr(octal_object='0o777')
-    assert is_decimal_repr(octal_object=0o322)
-    assert is_decimal_repr(octal_object=0o070 | 0o001)
-    assert is_decimal_repr(octal_object=0o001)
-    assert is_decimal_repr(octal_object=438)
-    assert is_decimal_repr(octal_object=0o111 | 0o200)
-
-
-def test_from_octal_integer() -> None:
-    """
-    Testing the 'from_octal_integer' function which standardizes an octal integer into a string
-    representation of a 3 digit octal integer.
-    """
-    assert from_octal_integer(octal_object='111') == '111'
-    assert from_octal_integer(octal_object=111) == '111'
-    assert from_octal_integer(octal_object=732) == '732'
-    assert from_octal_integer(octal_object=1) == '001'
-    assert from_octal_integer(octal_object=51) == '051'
-    assert from_octal_integer(octal_object=0) == '000'
-    assert from_octal_integer(octal_object='03') == '003'
+    assert from_octal_to_permissions_code(octal='111') == '111'
+    assert from_octal_to_permissions_code(octal='732') == '732'
+    assert from_octal_to_permissions_code(octal='0') == '000'
+    assert from_octal_to_permissions_code(octal='03') == '003'
+    assert from_octal_to_permissions_code(octal=0o100 | 0o200 | 0o070) == '370'
+    assert from_octal_to_permissions_code(octal=0o000) == '000'
+    assert from_octal_to_permissions_code(octal=0) == '000'
+    assert from_octal_to_permissions_code(octal=438) == '666'
 
     with pytest.raises(InvalidOctalError) as exc_info:
-        _ = from_octal_integer(octal_object='118')
-        assert exc_info == 'invalid bits in octal representation, bits must range from 0 to 7'
+        _ = from_octal_to_permissions_code(octal='118')
+        assert exc_info == 'invalid digits in octal representation, digits must range from 0 to 7'
 
     with pytest.raises(InvalidOctalError) as exc_info:
-        _ = from_octal_integer(octal_object=7777)
-        assert exc_info == 'invalid octal representation length, must have a length ranging from 0 to 3'
-
-
-def test_from_decimal_repr_to_octal_integer() -> None:
-    """
-    Testing the 'from_decimal_repr_to_octal_integer' function which standardizes a decimal representation into a string
-    representation of a 3 digit octal integer.
-    """
-    assert from_decimal_repr_to_octal_integer(octal_object='0o777') == '777'
-    assert from_decimal_repr_to_octal_integer(octal_object='438') == '666'
-    assert from_decimal_repr_to_octal_integer(octal_object=438) == '666'
-    assert from_decimal_repr_to_octal_integer(octal_object='001') == '001'
-    assert from_decimal_repr_to_octal_integer(octal_object=0o100 | 0o200 | 0o070) == '370'
-    assert from_decimal_repr_to_octal_integer(octal_object=0o000) == '000'
-    assert from_decimal_repr_to_octal_integer(octal_object=0) == '000'
-
-    with pytest.raises(InvalidOctalError) as exc_info:
-        _ = from_decimal_repr_to_octal_integer(octal_object=3333)
+        _ = from_octal_to_permissions_code(octal='7777')
         assert exc_info == 'invalid octal representation length, must have a length ranging from 0 to 3'
 
     with pytest.raises(InvalidOctalError) as exc_info:
-        _ = from_decimal_repr_to_octal_integer(octal_object='999')
-        assert exc_info == 'invalid bits in octal representation, bits must range from 0 to 7'
+        _ = from_octal_to_permissions_code(octal=3333)
+        assert exc_info == 'invalid octal representation length, must have a length ranging from 0 to 3'
 
 
-def test_from_octal_bit_to_config() -> None:
+def test_from_octal_digit_to_config() -> None:
     """
-    Testing the 'from_octal_bit_to_config' function which returns on OctalConfig object from an octal bit.
+    Testing the 'from_octal_digit_to_config' function which returns an OctalConfig object from an octal digit.
     """
-    assert from_octal_bit_to_config(octal_bit=6) == OCTAL_MODE_BIT_6
-    assert from_octal_bit_to_config(octal_bit=2) == OCTAL_MODE_BIT_2
-    assert from_octal_bit_to_config(octal_bit='000') == OCTAL_MODE_BIT_0
-    assert from_octal_bit_to_config(octal_bit='0005') == OCTAL_MODE_BIT_5
-    assert from_octal_bit_to_config(octal_bit='4') == OCTAL_MODE_BIT_4
-    assert from_octal_bit_to_config(octal_bit=3) == OCTAL_MODE_BIT_3
-    assert from_octal_bit_to_config(octal_bit=1) == OCTAL_MODE_BIT_1
-    assert from_octal_bit_to_config(octal_bit=7) == OCTAL_MODE_BIT_7
-    assert from_octal_bit_to_config(octal_bit='7') == OCTAL_MODE_BIT_7
-    assert from_octal_bit_to_config(octal_bit='007') == OCTAL_MODE_BIT_7
-    assert from_octal_bit_to_config(octal_bit=5) == OCTAL_MODE_BIT_5
-    assert from_octal_bit_to_config(octal_bit=0o001) == OCTAL_MODE_BIT_1
+    assert from_octal_digit_to_config(octal_digit=6) == OCTAL_MODE_DIGIT_6
+    assert from_octal_digit_to_config(octal_digit=2) == OCTAL_MODE_DIGIT_2
+    assert from_octal_digit_to_config(octal_digit='000') == OCTAL_MODE_DIGIT_0
+    assert from_octal_digit_to_config(octal_digit='0005') == OCTAL_MODE_DIGIT_5
+    assert from_octal_digit_to_config(octal_digit='4') == OCTAL_MODE_DIGIT_4
+    assert from_octal_digit_to_config(octal_digit=3) == OCTAL_MODE_DIGIT_3
+    assert from_octal_digit_to_config(octal_digit=1) == OCTAL_MODE_DIGIT_1
+    assert from_octal_digit_to_config(octal_digit=7) == OCTAL_MODE_DIGIT_7
+    assert from_octal_digit_to_config(octal_digit='7') == OCTAL_MODE_DIGIT_7
+    assert from_octal_digit_to_config(octal_digit='007') == OCTAL_MODE_DIGIT_7
+    assert from_octal_digit_to_config(octal_digit=5) == OCTAL_MODE_DIGIT_5
 
     with pytest.raises(InvalidOctalError) as exc_info:
-        _ = from_octal_bit_to_config(octal_bit='47')
-        assert exc_info == "an integer representation of an octal bit must be a single digit ranging from 0 to 7"
+        _ = from_octal_digit_to_config(octal_digit='47')
+        assert exc_info == "an integer representation of an octal digit must be a single digit ranging from 0 to 7"
 
 
 def test_octal_permissions() -> None:

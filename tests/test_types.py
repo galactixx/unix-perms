@@ -6,27 +6,27 @@ from unix_perms import (InvalidOctalError, PermissionsByte, PermissionsCode,
 
 def test_permissions_config() -> None:
     """
-    Testing the 'from_octal_bit' class method from 'PermissionsConfig'
-    which creates a 'PermissionsConfig' object from an octal bit.
+    Testing the 'from_octal_digit' class method from PermissionsConfig
+    which creates a new PermissionsConfig instance from an octal digit.
     """
     ALL_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=True, execute=True)
     READ_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=False, execute=False)
     WRITE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=True, execute=False)
     EXECUTE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=False, execute=True)
 
-    assert PermissionsConfig.from_octal_bit(octal_bit='4') == READ_PERMISSIONS_CONFIG
-    assert PermissionsConfig.from_octal_bit(octal_bit=0o001) == EXECUTE_PERMISSIONS_CONFIG
-    assert PermissionsConfig.from_octal_bit(octal_bit=2) == WRITE_PERMISSIONS_CONFIG
-    assert PermissionsConfig.from_octal_bit(octal_bit='007') == ALL_PERMISSIONS_CONFIG
+    assert PermissionsConfig.from_octal_digit(octal_digit='4') == READ_PERMISSIONS_CONFIG
+    assert PermissionsConfig.from_octal_digit(octal_digit=1) == EXECUTE_PERMISSIONS_CONFIG
+    assert PermissionsConfig.from_octal_digit(octal_digit=2) == WRITE_PERMISSIONS_CONFIG
+    assert PermissionsConfig.from_octal_digit(octal_digit='007') == ALL_PERMISSIONS_CONFIG
 
     with pytest.raises(InvalidOctalError) as exc_info:
-        _ = PermissionsConfig.from_octal_bit(octal_bit=0o700)
-        assert exc_info == "an integer representation of an octal bit must be a single digit ranging from 0 to 7"
+        _ = PermissionsConfig.from_octal_digit(octal_digit=700)
+        assert exc_info == "an integer representation of an octal digit must be a single digit ranging from 0 to 7"
 
 
 def test_permissions_byte() -> None:
     """
-    Testing the 'PermissionsByte' class which allows creation of structured objects centered around permission codes for
+    Testing the PermissionsByte class which allows creation of structured objects centered around permission codes for
     singular Unix authorities.
     """
     WRITE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=True, execute=False)
@@ -55,7 +55,7 @@ def test_permissions_byte() -> None:
 
 def test_permissions_code() -> None:
     """
-    Testing the 'PermissionsCode' class which allows creation of structured objecs centered around full Unix permission codes.
+    Testing the PermissionsCode class which allows creation of structured objecs centered around full Unix permission codes.
     """
     WRITE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=True, execute=False)
     ALL_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=True, execute=True)
