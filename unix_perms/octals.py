@@ -67,7 +67,7 @@ def from_octal_digit_to_config(octal_digit: Union[str, int]) -> OctalConfig:
 
 def _octal_validation(octal: str) -> str:
     """
-    Private function to validate and convert a string Unix permissions code to a three digit code.
+    Private function to validate and convert a string Unix permissions mode to a three digit mode.
     """
     octal_string_length: int = len(octal)
 
@@ -86,23 +86,23 @@ def _octal_validation(octal: str) -> str:
     return octal_int_string_repr
 
 
-def _to_octal_str_repr_conversion(octal: int) -> str:
+def _from_decimal_to_permissions_mode(octal: int) -> str:
     """
     Private function to convert a decimal representation of an octal
-    to a three digit string Unix permissions code.
+    to a three digit string Unix permissions mode.
     """
     octal_string: str = format(octal, 'o')
     octal_int_string_repr: str = _octal_validation(octal=octal_string)
     return octal_int_string_repr
 
 
-def from_octal_to_permissions_code(octal: Union[str, int]) -> str:
+def from_octal_to_permissions_mode(octal: Union[str, int]) -> str:
     """
-    Creates a Unix permissions code from an octal representation.
+    Creates a Unix permissions mode from an octal representation.
 
     This function accepts either a string or an integer as input. If the argument is
     a string, the value must be either in the format of an octal literal (e.g., '0o777')
-    or as a Unix permissions code (e.g., '777'). If the value is an integer, it must be a
+    or as a Unix permissions mode (e.g., '777'). If the value is an integer, it must be a
     decimal representation of an octal as an octal literal (e.g., 0o777) or directly as an
     integer (e.g., 511).
 
@@ -110,7 +110,7 @@ def from_octal_to_permissions_code(octal: Union[str, int]) -> str:
         octal (str | int): An octal representation as a string or integer.
 
     Returns:
-        str: A string representation of a Unix permissions code.
+        str: A string representation of a Unix permissions mode.
     """
     if not isinstance(octal, (str, int)):
         raise TypeError(
@@ -131,20 +131,20 @@ def from_octal_to_permissions_code(octal: Union[str, int]) -> str:
             raise InvalidOctalError(message)
         else:
             octal_as_str = str(octal_as_int)
-            permissions_code: str = _octal_validation(octal=octal_as_str)
-            return permissions_code
+            permissions_mode: str = _octal_validation(octal=octal_as_str)
+            return permissions_mode
     else:
-        permissions_code: str = _to_octal_str_repr_conversion(octal=octal)
-        return permissions_code
+        permissions_mode: str = _from_decimal_to_permissions_mode(octal=octal)
+        return permissions_mode
 
 
-def is_permissions_code(octal: str) -> bool:
+def is_permissions_mode(octal: str) -> bool:
     """
-    A boolean function which determines if an octal representation is a valid Unix permissions code.
+    A boolean function which determines if an octal representation is a valid Unix permissions mode.
 
     This function accepts either a string or an integer as input. If the argument is
     a string, the value must be either in the format of an octal literal (e.g., '0o777')
-    or as a Unix permissions code (e.g., '777'). If the value is an integer, it must be a
+    or as a Unix permissions mode (e.g., '777'). If the value is an integer, it must be a
     decimal representation of an octal as an octal literal (e.g., 0o777) or directly as an
     integer (e.g., 511).
 
@@ -152,11 +152,11 @@ def is_permissions_code(octal: str) -> bool:
         octal (str | int): An octal representation as a string or integer.
 
     Returns:
-        bool: A boolean indicating whether the octal is a Unix permissions code.
+        bool: A boolean indicating whether the octal is a Unix permissions mode.
     """
     try:
-        _ = from_octal_to_permissions_code(octal=octal)
-        is_perms_code = True
+        _ = from_octal_to_permissions_mode(octal=octal)
+        is_perms_mode = True
     except InvalidOctalError:
-        is_perms_code = False
-    return is_perms_code
+        is_perms_mode = False
+    return is_perms_mode

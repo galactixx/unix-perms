@@ -3,7 +3,7 @@ from typing import Dict, Literal, Union
 from pydantic import BaseModel
 
 from unix_perms.octals import (OctalConfig, from_octal_digit_to_config,
-                               from_octal_to_permissions_code)
+                               from_octal_to_permissions_mode)
 from unix_perms.permissions import OctalPermissions
 from unix_perms.utils import get_all_class_parameters
 
@@ -59,13 +59,13 @@ class PermissionsByte:
         # Set permissions for specific authority
         self.permissions = OctalPermissions(authority=self.authority)
 
-    def __add__(self, permission_byte: 'PermissionsByte') -> 'PermissionsCode':
+    def __add__(self, permission_byte: 'PermissionsByte') -> 'PermissionsMode':
         if not isinstance(permission_byte, PermissionsByte):
             raise TypeError(
                 f'can only add PermissionsByte (not "{type(permission_byte)}") to PermissionsByte'
             )
 
-        return PermissionsCode._from_permissions_bytes(
+        return PermissionsMode._from_permissions_bytes(
             permissions_byte_one=self, permissions_byte_two=permission_byte
         )
 
@@ -75,7 +75,7 @@ class PermissionsByte:
     def __repr__(self) -> str:
         return (
             f'<{self.__class__.__name__} authority={self.authority} '
-            f'permissions_code={self.permissions_code}>'
+            f'permissions_mode={self.permissions_mode}>'
         )
 
     @property
@@ -94,8 +94,8 @@ class PermissionsByte:
         return self._config.execute
 
     @property
-    def permissions_code(self) -> str:
-        """The Unix permissions code."""
+    def permissions_mode(self) -> str:
+        """The Unix permissions mode."""
         base_permissions = self.permissions.no_permissions
         if self._config.read:
             base_permissions |= self.permissions.read
@@ -110,43 +110,43 @@ class PermissionsByte:
 
     @property
     def permissions_description(self) -> str:
-        """A string description of the Unix permissions code."""
-        permissions_code = self.permissions_code.strip('0')
-        permissions_code = permissions_code or 0
-        permissions_code = int(permissions_code)
-        octal_config: OctalConfig = from_octal_digit_to_config(octal_digit=permissions_code)
+        """A string description of the Unix permissions mode."""
+        permissions_mode = self.permissions_mode.strip('0')
+        permissions_mode = permissions_mode or 0
+        permissions_mode = int(permissions_mode)
+        octal_config: OctalConfig = from_octal_digit_to_config(octal_digit=permissions_mode)
         return octal_config.description
 
     @property
     def permissions_description_detailed(self) -> Dict[str, Union[str, bool]]:
-        """A more detailed description of the Unix permissions code, as a dict."""
+        """A more detailed description of the Unix permissions mode, as a dict."""
         return {
             'authority': self.authority,
-            'code': self.permissions_code,
+            'mode': self.permissions_mode,
             'read': self.read_permission,
             'write': self.write_permission,
             'execute': self.execute_permission
         }
 
     @property
-    def permissions_code_as_decimal_repr(self) -> int:
-        """The decimal representation of the Unix permissions code"""
-        return int(self.permissions_code, 8)
+    def permissions_mode_as_decimal_repr(self) -> int:
+        """The decimal representation of the Unix permissions mode"""
+        return int(self.permissions_mode, 8)
 
     @property
-    def permissions_code_as_int(self) -> int:
-        """The integer representation of the Unix permissions code"""
-        return int(self.permissions_code)
+    def permissions_mode_as_int(self) -> int:
+        """The integer representation of the Unix permissions mode"""
+        return int(self.permissions_mode)
 
     @property
-    def permissions_code_as_octal_literal(self) -> str:
-        """The string octal literal representation of the Unix permissions code."""
-        return f'0o{self.permissions_code}'
+    def permissions_mode_as_octal_literal(self) -> str:
+        """The string octal literal representation of the Unix permissions mode."""
+        return f'0o{self.permissions_mode}'
 
 
-class PermissionsCode:
+class PermissionsMode:
     """
-    A simple structure representing a full Unix permissions code, including all
+    A simple structure representing a full Unix permissions mode, including all
     of the following authorites: ('owner', 'group', 'others').
 
     Args:
@@ -164,68 +164,68 @@ class PermissionsCode:
         self.group = group
         self.others = others
 
-    def __sub__(self, permission_byte: PermissionsByte) -> 'PermissionsCode':
+    def __sub__(self, permission_byte: PermissionsByte) -> 'PermissionsMode':
         if not isinstance(permission_byte, PermissionsByte):
             raise TypeError(
-                f'can only subtract PermissionsByte (not "{type(permission_byte)}") from PermissionsCode'
+                f'can only subtract PermissionsByte (not "{type(permission_byte)}") from PermissionsMode'
             )
 
-        permissions_code: int = self.permissions_code_as_decimal_repr
-        permissions_code_updated: int = (
-            permissions_code & ~permission_byte.permissions_code_as_decimal_repr
+        permissions_mode: int = self.permissions_mode_as_decimal_repr
+        permissions_mode_updated: int = (
+            permissions_mode & ~permission_byte.permissions_mode_as_decimal_repr
         )
-        class_arguments: Dict[str, PermissionsByte] = PermissionsCode.__transform_permission_code(
-            permissions_code_updated=permissions_code_updated
+        class_arguments: Dict[str, PermissionsByte] = PermissionsMode.__transform_permission_mode(
+            permissions_mode_updated=permissions_mode_updated
         )
 
-        return PermissionsCode(**class_arguments)
+        return PermissionsMode(**class_arguments)
 
-    def __add__(self, permission_byte: PermissionsByte) -> 'PermissionsCode':
+    def __add__(self, permission_byte: PermissionsByte) -> 'PermissionsMode':
         if not isinstance(permission_byte, PermissionsByte):
             raise TypeError(
-                f'can only add PermissionsByte (not "{type(permission_byte)}") to PermissionsCode'
+                f'can only add PermissionsByte (not "{type(permission_byte)}") to PermissionsMode'
             )
 
-        permissions_code: int = self.permissions_code_as_decimal_repr
-        permissions_code_updated: int = (
-            permissions_code | permission_byte.permissions_code_as_decimal_repr
+        permissions_mode: int = self.permissions_mode_as_decimal_repr
+        permissions_mode_updated: int = (
+            permissions_mode | permission_byte.permissions_mode_as_decimal_repr
         )
-        class_arguments: Dict[str, PermissionsByte] = PermissionsCode.__transform_permission_code(
-            permissions_code_updated=permissions_code_updated
+        class_arguments: Dict[str, PermissionsByte] = PermissionsMode.__transform_permission_mode(
+            permissions_mode_updated=permissions_mode_updated
         )
 
-        return PermissionsCode(**class_arguments)
+        return PermissionsMode(**class_arguments)
 
     def __str__(self) -> str:
         return repr(self)
 
     def __repr__(self) -> str:
         return (
-            f'<{self.__class__.__name__} permissions_code={self.permissions_code}>'
+            f'<{self.__class__.__name__} permissions_mode={self.permissions_mode}>'
         )
 
     @staticmethod
-    def __transform_permission_code(permissions_code_updated: int) -> Dict[str, PermissionsByte]:
+    def __transform_permission_mode(permissions_mode_updated: int) -> Dict[str, PermissionsByte]:
         """
         Private static method to take the decimal representation of a transformed permissions
-        code from __add__ or __sub__, convert to the Unix permissions code, and generate
-        updated class arguments for a new PermissionsCode instance.
+        mode from __add__ or __sub__, convert to the Unix permissions mode, and generate
+        updated class arguments for a new PermissionsMode instance.
         """
-        permission_code: str = from_octal_to_permissions_code(octal=permissions_code_updated)
-        class_arguments: Dict[str, PermissionsByte] = PermissionsCode.__generate_class_arguments_from_code(
-            permission_code=permission_code
+        permission_mode: str = from_octal_to_permissions_mode(octal=permissions_mode_updated)
+        class_arguments: Dict[str, PermissionsByte] = PermissionsMode.__generate_class_arguments_from_mode(
+            permission_mode=permission_mode
         )
         return class_arguments
 
     @staticmethod
-    def __generate_class_arguments_from_code(permission_code: str) -> Dict[str, PermissionsByte]:
+    def __generate_class_arguments_from_mode(permission_mode: str) -> Dict[str, PermissionsByte]:
         """
-        Private static method to generate class arguments for a PermissionsCode instance based on
-        a Unix permission code.
+        Private static method to generate class arguments for a PermissionsMode instance based on
+        a Unix permission mode.
         """
-        owner_config = PermissionsConfig.from_octal_digit(octal_digit=permission_code[0])
-        group_config = PermissionsConfig.from_octal_digit(octal_digit=permission_code[1])
-        others_config = PermissionsConfig.from_octal_digit(octal_digit=permission_code[2])
+        owner_config = PermissionsConfig.from_octal_digit(octal_digit=permission_mode[0])
+        group_config = PermissionsConfig.from_octal_digit(octal_digit=permission_mode[1])
+        others_config = PermissionsConfig.from_octal_digit(octal_digit=permission_mode[2])
 
         class_arguments = {
             'owner': PermissionsByte(authority='owner', config=owner_config),
@@ -240,9 +240,9 @@ class PermissionsCode:
         cls,
         permissions_byte_one: PermissionsByte,
         permissions_byte_two: PermissionsByte
-    ) -> 'PermissionsCode':
+    ) -> 'PermissionsMode':
         """
-        Private class method to generate a PermissionsCode instance from two PermissionByte
+        Private class method to generate a PermissionsMode instance from two PermissionByte
         instances.
         """
         class_arguments = dict()
@@ -262,13 +262,13 @@ class PermissionsCode:
         return cls(**class_arguments)
 
     @classmethod
-    def from_octal_representation(cls, octal: Union[str, int]) -> 'PermissionsCode':
+    def from_octal_representation(cls, octal: Union[str, int]) -> 'PermissionsMode':
         """
-        Creates a PermissionsCode instance from an octal representation.
+        Creates a PermissionsMode instance from an octal representation.
 
         This function accepts either a string or an integer as input. If the argument is
         a string, the value must be either in the format of an octal literal (e.g., '0o777')
-        or as a Unix permissions code (e.g., '777'). If the value is an integer, it must be a
+        or as a Unix permissions mode (e.g., '777'). If the value is an integer, it must be a
         decimal representation of an octal as an octal literal (e.g., 0o777) or directly as an
         integer (e.g., 511).
 
@@ -276,37 +276,37 @@ class PermissionsCode:
             octal (str | int): An octal representation as a string or integer.
 
         Returns:
-            PermissionsCode: A new instance of PermissionsCode corresponding to the
+            PermissionsMode: A new instance of PermissionsMode corresponding to the
                 provided octal value.
         """
-        permission_code: str = from_octal_to_permissions_code(octal=octal)
-        class_arguments: Dict[str, PermissionsByte] = PermissionsCode.__generate_class_arguments_from_code(
-            permission_code=permission_code
+        permission_mode: str = from_octal_to_permissions_mode(octal=octal)
+        class_arguments: Dict[str, PermissionsByte] = PermissionsMode.__generate_class_arguments_from_mode(
+            permission_mode=permission_mode
         )
 
         return cls(**class_arguments)
 
     @property
-    def permissions_code(self) -> str:
-        """The Unix permissions code."""
-        permissions_code = (
-            self.owner.permissions_code_as_decimal_repr |
-            self.group.permissions_code_as_decimal_repr |
-            self.others.permissions_code_as_decimal_repr
+    def permissions_mode(self) -> str:
+        """The Unix permissions mode."""
+        permissions_mode = (
+            self.owner.permissions_mode_as_decimal_repr |
+            self.group.permissions_mode_as_decimal_repr |
+            self.others.permissions_mode_as_decimal_repr
         )
-        return format(permissions_code, 'o').zfill(3)
+        return format(permissions_mode, 'o').zfill(3)
 
     @property
-    def permissions_code_as_decimal_repr(self) -> int:
-        """The decimal representation of the Unix permissions code"""
-        return int(self.permissions_code, 8)
+    def permissions_mode_as_decimal_repr(self) -> int:
+        """The decimal representation of the Unix permissions mode"""
+        return int(self.permissions_mode, 8)
 
     @property
-    def permissions_code_as_int(self) -> int:
-        """The integer representation of the Unix permissions code"""
-        return int(self.permissions_code)
+    def permissions_mode_as_int(self) -> int:
+        """The integer representation of the Unix permissions mode"""
+        return int(self.permissions_mode)
 
     @property
-    def permissions_code_as_octal_literal(self) -> str:
-        """The string octal literal representation of the Unix permissions code."""
-        return f'0o{self.permissions_code}'
+    def permissions_mode_as_octal_literal(self) -> str:
+        """The string octal literal representation of the Unix permissions mode."""
+        return f'0o{self.permissions_mode}'

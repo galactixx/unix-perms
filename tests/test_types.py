@@ -1,6 +1,6 @@
 import pytest
 
-from unix_perms import (InvalidOctalError, PermissionsByte, PermissionsCode,
+from unix_perms import (InvalidOctalError, PermissionsByte, PermissionsMode,
                         PermissionsConfig)
 
 
@@ -26,7 +26,7 @@ def test_permissions_config() -> None:
 
 def test_permissions_byte() -> None:
     """
-    Testing the PermissionsByte class which allows creation of structured objects centered around permission codes for
+    Testing the PermissionsByte class which allows creation of structured objects centered around permission modes for
     singular Unix authorities.
     """
     WRITE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=True, execute=False)
@@ -37,25 +37,25 @@ def test_permissions_byte() -> None:
     assert not owner_permissions.execute_permission
     assert not owner_permissions.read_permission
     assert owner_permissions.write_permission
-    assert owner_permissions.permissions_code == '200'
-    assert owner_permissions.permissions_code_as_decimal_repr == 128
-    assert owner_permissions.permissions_code_as_octal_literal == '0o200'
-    assert owner_permissions.permissions_code_as_int == 200
+    assert owner_permissions.permissions_mode == '200'
+    assert owner_permissions.permissions_mode_as_decimal_repr == 128
+    assert owner_permissions.permissions_mode_as_octal_literal == '0o200'
+    assert owner_permissions.permissions_mode_as_int == 200
     assert owner_permissions.permissions_description == 'Write permission only'
     assert owner_permissions.permissions_description_detailed == {
-        'authority': 'owner', 'code': '200', 'read': False, 'write': True, 'execute': False
+        'authority': 'owner', 'mode': '200', 'read': False, 'write': True, 'execute': False
     }
 
     group_permissions = PermissionsByte(authority='group', config=ALL_PERMISSIONS_CONFIG)
-    permission_code = owner_permissions + group_permissions
+    permission_mode = owner_permissions + group_permissions
 
-    assert isinstance(permission_code, PermissionsCode)
-    assert permission_code.permissions_code == '270'
+    assert isinstance(permission_mode, PermissionsMode)
+    assert permission_mode.permissions_mode == '270'
 
 
-def test_permissions_code() -> None:
+def test_permissions_mode() -> None:
     """
-    Testing the PermissionsCode class which allows creation of structured objecs centered around full Unix permission codes.
+    Testing the PermissionsMode class which allows creation of structured objecs centered around full Unix permission modes.
     """
     WRITE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=True, execute=False)
     ALL_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=True, execute=True)
@@ -65,27 +65,27 @@ def test_permissions_code() -> None:
     group_permissions = PermissionsByte(authority='group', config=ALL_PERMISSIONS_CONFIG)
     others_permissions = PermissionsByte(authority='others', config=READ_PERMISSIONS_CONFIG)
 
-    permissions_code = PermissionsCode(
+    permissions_mode = PermissionsMode(
         owner=owner_permissions, group=group_permissions, others=others_permissions
     )
 
-    assert permissions_code.permissions_code == '274'
-    assert permissions_code.permissions_code_as_octal_literal == '0o274'
-    assert permissions_code.permissions_code_as_int == 274
-    assert permissions_code.permissions_code_as_decimal_repr == 188
+    assert permissions_mode.permissions_mode == '274'
+    assert permissions_mode.permissions_mode_as_octal_literal == '0o274'
+    assert permissions_mode.permissions_mode_as_int == 274
+    assert permissions_mode.permissions_mode_as_decimal_repr == 188
 
     group_permissions_new = PermissionsByte(authority='group', config=ALL_PERMISSIONS_CONFIG)
-    permission_code_sub = permissions_code - group_permissions_new
+    permission_mode_sub = permissions_mode - group_permissions_new
 
-    assert permission_code_sub.permissions_code == '204'
-    assert permission_code_sub.permissions_code_as_octal_literal == '0o204'
-    assert permission_code_sub.permissions_code_as_int == 204
-    assert permission_code_sub.permissions_code_as_decimal_repr == 132
+    assert permission_mode_sub.permissions_mode == '204'
+    assert permission_mode_sub.permissions_mode_as_octal_literal == '0o204'
+    assert permission_mode_sub.permissions_mode_as_int == 204
+    assert permission_mode_sub.permissions_mode_as_decimal_repr == 132
 
     others_permissions_new = PermissionsByte(authority='others', config=WRITE_PERMISSIONS_CONFIG)
-    permission_code_add = permissions_code + others_permissions_new
+    permission_mode_add = permissions_mode + others_permissions_new
 
-    assert permission_code_add.permissions_code == '276'
-    assert permission_code_add.permissions_code_as_octal_literal == '0o276'
-    assert permission_code_add.permissions_code_as_int == 276
-    assert permission_code_add.permissions_code_as_decimal_repr == 190
+    assert permission_mode_add.permissions_mode == '276'
+    assert permission_mode_add.permissions_mode_as_octal_literal == '0o276'
+    assert permission_mode_add.permissions_mode_as_int == 276
+    assert permission_mode_add.permissions_mode_as_decimal_repr == 190
