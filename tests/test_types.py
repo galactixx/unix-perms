@@ -1,7 +1,7 @@
 import pytest
 
-from unix_perms import (InvalidOctalError, PermissionsByte, PermissionsMode,
-                        PermissionsConfig)
+from unix_perms import (InvalidOctalError, PermissionsByte, PermissionsConfig,
+                        PermissionsMode)
 
 
 def test_permissions_config() -> None:

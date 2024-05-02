@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "unix-perms"
-version = "0.1.0"
+version = "0.2.0"
 description = "Manage and interpret Unix file permissions with a Python package that provides intuitive tools for creating, validating, and describing permission modes."
 authors = ["galactixx"]
 readme = "README.md"
