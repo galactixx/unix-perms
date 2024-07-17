@@ -254,7 +254,7 @@ class PermissionsMode:
         instances.
         """
         class_arguments: Dict[str, PermissionsByte] = dict()
-        remaining_class_parameters = _CLASS_PARAMETERS
+        remaining_class_parameters = _CLASS_PARAMETERS.copy()
 
         if permissions_byte_one.authority == permissions_byte_two.authority:
             raise ValueError("Authority cannot be the same for both PermissionsByte objects")

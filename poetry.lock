@@ -11,6 +11,9 @@ files = [
     {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
 ]
 
+[package.dependencies]
+typing-extensions = {version = ">=4.0.0", markers = "python_version < \"3.9\""}
+
 [[package]]
 name = "colorama"
 version = "0.4.6"
@@ -242,5 +245,5 @@ files = [
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.10"
-content-hash = "41509a13f8ae85455335789ce813732f04d02261a6a7cb9439d60c056bd80f0b"
+python-versions = "^3.8"
+content-hash = "1c5bbfbf579d384a2e32cf937a3fb81b77e5068e95101455b412f4bd5fc74f4c"
