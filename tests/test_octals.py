@@ -13,8 +13,8 @@ from unix_perms.octals import (OCTAL_MODE_DIGIT_0, OCTAL_MODE_DIGIT_1,
 
 def test_is_permissions_mode() -> None:
     """
-    Testing the 'is_permissions_mode' boolean function which determines if an octal representation is a
-    valid Unix permissions mode.
+    Testing the 'is_permissions_mode' boolean function which determines if
+    an octal representation is a valid Unix permissions mode.
     """
     assert not is_permissions_mode(octal=0o1052)
     assert not is_permissions_mode(octal=0o7433)
@@ -36,8 +36,8 @@ def test_is_permissions_mode() -> None:
 
 def test_from_octal_to_permissions_mode() -> None:
     """
-    Testing the 'from_octal_to_permissions_mode' function which converst an octal representation to a
-    Unix permissions mode.
+    Testing the 'from_octal_to_permissions_mode' function which converst an
+    octal representation to a Unix permissions mode.
     """
     assert from_octal_to_permissions_mode(octal='111') == '111'
     assert from_octal_to_permissions_mode(octal='732') == '732'
@@ -50,20 +50,27 @@ def test_from_octal_to_permissions_mode() -> None:
 
     with pytest.raises(InvalidOctalError) as exc_info:
         _ = from_octal_to_permissions_mode(octal='118')
-        assert exc_info == 'invalid digits in octal representation, digits must range from 0 to 7'
+    assert str(exc_info.value) == (
+        'Invalid digits in octal representation, digits must range from 0 to 7'
+    )
 
     with pytest.raises(InvalidOctalError) as exc_info:
         _ = from_octal_to_permissions_mode(octal='7777')
-        assert exc_info == 'invalid octal representation length, must have a length ranging from 0 to 3'
+    assert str(exc_info.value) == (
+        'Invalid octal representation length, must have a length ranging from 0 to 3'
+    )
 
     with pytest.raises(InvalidOctalError) as exc_info:
         _ = from_octal_to_permissions_mode(octal=3333)
-        assert exc_info == 'invalid octal representation length, must have a length ranging from 0 to 3'
+    assert str(exc_info.value) == (
+        'Invalid octal representation length, must have a length ranging from 0 to 3'
+    )
 
 
 def test_from_octal_digit_to_config() -> None:
     """
-    Testing the 'from_octal_digit_to_config' function which returns an OctalConfig object from an octal digit.
+    Testing the 'from_octal_digit_to_config' function which returns an
+    OctalConfig object from an octal digit.
     """
     assert from_octal_digit_to_config(octal_digit=6) == OCTAL_MODE_DIGIT_6
     assert from_octal_digit_to_config(octal_digit=2) == OCTAL_MODE_DIGIT_2
@@ -79,12 +86,15 @@ def test_from_octal_digit_to_config() -> None:
 
     with pytest.raises(InvalidOctalError) as exc_info:
         _ = from_octal_digit_to_config(octal_digit='47')
-        assert exc_info == "an integer representation of an octal digit must be a single digit ranging from 0 to 7"
+    assert str(exc_info.value) == (
+        "Integer representation of an octal digit must be a single digit ranging from 0 to 7"
+    )
 
 
 def test_octal_permissions() -> None:
     """
-    Testing the 'OctalPermissions' object which provides an abstract interface for accessing permission settings.
+    Testing the 'OctalPermissions' object which provides an abstract
+    interface for accessing permission settings.
     """
     octal_permission = OctalPermissions(authority='owner')
     assert octal_permission.read_write_execute == stat.S_IRWXU

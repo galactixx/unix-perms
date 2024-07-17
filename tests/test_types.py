@@ -21,13 +21,15 @@ def test_permissions_config() -> None:
 
     with pytest.raises(InvalidOctalError) as exc_info:
         _ = PermissionsConfig.from_octal_digit(octal_digit=700)
-        assert exc_info == "an integer representation of an octal digit must be a single digit ranging from 0 to 7"
+    assert str(exc_info.value) == (
+        "Integer representation of an octal digit must be a single digit ranging from 0 to 7"
+    )
 
 
 def test_permissions_byte() -> None:
     """
-    Testing the PermissionsByte class which allows creation of structured objects centered around permission modes for
-    singular Unix authorities.
+    Testing the PermissionsByte class which allows creation of structured objects
+    centered around permission modes for singular Unix authorities.
     """
     WRITE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=True, execute=False)
     ALL_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=True, execute=True)
@@ -50,12 +52,13 @@ def test_permissions_byte() -> None:
     permission_mode = owner_permissions + group_permissions
 
     assert isinstance(permission_mode, PermissionsMode)
-    assert permission_mode.permissions_mode == '270'
+    assert permission_mode.permissions_mode == '274'
 
 
 def test_permissions_mode() -> None:
     """
-    Testing the PermissionsMode class which allows creation of structured objecs centered around full Unix permission modes.
+    Testing the PermissionsMode class which allows creation of structured objecs
+    centered around full Unix permission modes.
     """
     WRITE_PERMISSIONS_CONFIG = PermissionsConfig(read=False, write=True, execute=False)
     ALL_PERMISSIONS_CONFIG = PermissionsConfig(read=True, write=True, execute=True)

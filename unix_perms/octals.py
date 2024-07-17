@@ -31,11 +31,11 @@ def _get_octal_digit_config(octal_digit: int) -> OctalConfig:
     """
     Private function to retrieve an OctalConfig object for a given octal digit.
     """
-    if 0 <= octal_digit <= 7:
-        return OCTAL_DIGIT_CONFIGS.get(octal_digit)
+    if octal_digit in OCTAL_DIGIT_CONFIGS:
+        return OCTAL_DIGIT_CONFIGS[octal_digit]
     else:
         raise InvalidOctalError(
-            "an integer representation of an octal digit must be a single digit ranging from 0 to 7"
+            "Integer representation of an octal digit must be a single digit ranging from 0 to 7"
         )
 
 
@@ -51,14 +51,15 @@ def from_octal_digit_to_config(octal_digit: Union[str, int]) -> OctalConfig:
 
     """
     if not isinstance(octal_digit, (str, int)):
-        raise TypeError(f"{type(octal_digit)} is not a valid 'octal_digit' type")
+        message_core = 'Expected a string or integer object'
+        raise TypeError(f"{message_core}, but got {type(octal_digit).__name__}")
 
     if isinstance(octal_digit, str):
         try:
             octal_digit = int(octal_digit)
         except ValueError:
             raise InvalidOctalError(
-                "expecting a string representation of an integer octal digit"
+                "Expecting a string representation of an integer octal digit"
             )
 
     octal_config = _get_octal_digit_config(octal_digit=octal_digit)
@@ -67,19 +68,20 @@ def from_octal_digit_to_config(octal_digit: Union[str, int]) -> OctalConfig:
 
 def _octal_validation(octal: str) -> str:
     """
-    Private function to validate and convert a string Unix permissions mode to a three digit mode.
+    Private function to validate and convert a string Unix permissions mode
+    to a three digit mode.
     """
     octal_string_length: int = len(octal)
 
     if not 1 <= octal_string_length <= 3:
         raise InvalidOctalError(
-            'invalid octal representation length, must have a length ranging from 0 to 3'
+            'Invalid octal representation length, must have a length ranging from 0 to 3'
         )
 
     any_invalid_digits: bool = any(digit not in VALID_OCTAL_DIGITS for digit in octal)
     if any_invalid_digits:
         raise InvalidOctalError(
-            'invalid digits in octal representation, digits must range from 0 to 7'
+            'Invalid digits in octal representation, digits must range from 0 to 7'
         )
 
     octal_int_string_repr: str = octal.zfill(3)
@@ -100,11 +102,11 @@ def from_octal_to_permissions_mode(octal: Union[str, int]) -> str:
     """
     Creates a Unix permissions mode from an octal representation.
 
-    This function accepts either a string or an integer as input. If the argument is
-    a string, the value must be either in the format of an octal literal (e.g., '0o777')
-    or as a Unix permissions mode (e.g., '777'). If the value is an integer, it must be a
-    decimal representation of an octal as an octal literal (e.g., 0o777) or directly as an
-    integer (e.g., 511).
+    This function accepts either a string or an integer as input. If the argument
+    is a string, the value must be either in the format of an octal literal (e.g., '0o777')
+    or as a Unix permissions mode (e.g., '777'). If the value is an integer, it
+    must be a decimal representation of an octal as an octal literal (e.g., 0o777)
+    or directly as an integer (e.g., 511).
 
     Args:
         octal (str | int): An octal representation as a string or integer.
@@ -113,17 +115,17 @@ def from_octal_to_permissions_mode(octal: Union[str, int]) -> str:
         str: A string representation of a Unix permissions mode.
     """
     if not isinstance(octal, (str, int)):
-        raise TypeError(
-            f"{type(octal)} is not a valid 'octal' type, must be of type ('str', 'int')"
-        )
+        message_core = 'Expected a string or integer object'
+        raise TypeError(f"{message_core}, but got {type(octal).__name__}")
 
+    permissions_mode: str
     if isinstance(octal, str):
         int_base = 10
-        message = "must be a valid decimal representation of an octal"
+        message = "Must be a valid decimal representation of an octal"
 
         if octal.startswith('0o'):
             int_base = 8
-            message = "must be a valid octal literal"
+            message = "Must be a valid octal literal"
 
         try:
             octal_as_int = int(octal, int_base)
@@ -131,22 +133,23 @@ def from_octal_to_permissions_mode(octal: Union[str, int]) -> str:
             raise InvalidOctalError(message)
         else:
             octal_as_str = str(octal_as_int)
-            permissions_mode: str = _octal_validation(octal=octal_as_str)
+            permissions_mode = _octal_validation(octal=octal_as_str)
             return permissions_mode
     else:
-        permissions_mode: str = _from_decimal_to_permissions_mode(octal=octal)
+        permissions_mode = _from_decimal_to_permissions_mode(octal=octal)
         return permissions_mode
 
 
-def is_permissions_mode(octal: str) -> bool:
+def is_permissions_mode(octal: Union[str, int]) -> bool:
     """
-    A boolean function which determines if an octal representation is a valid Unix permissions mode.
+    A boolean function which determines if an octal representationis a valid
+    Unix permissions mode.
 
-    This function accepts either a string or an integer as input. If the argument is
-    a string, the value must be either in the format of an octal literal (e.g., '0o777')
-    or as a Unix permissions mode (e.g., '777'). If the value is an integer, it must be a
-    decimal representation of an octal as an octal literal (e.g., 0o777) or directly as an
-    integer (e.g., 511).
+    This function accepts either a string or an integer as input. If the argument
+    is a string, the value must be either in the format of an octal literal (e.g., '0o777')
+    or as a Unix permissions mode (e.g., '777'). If the value is an integer, it
+    must be a decimal representation of an octal as an octal literal (e.g., 0o777)
+    or directly as an integer (e.g., 511).
 
     Args:
         octal (str | int): An octal representation as a string or integer.

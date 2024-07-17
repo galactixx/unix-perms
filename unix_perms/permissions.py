@@ -38,7 +38,8 @@ PERMISSIONS_MAPPING = {
 class OctalPermissions:
     """
     An abstract interface facilitating access to octal permissions for
-    read, write, and execute for any of the following authorites: ('owner', 'group', 'others').
+    read, write, and execute for any of the following authorites:
+    ('owner', 'group', 'others').
 
     This class validates the given authority and assigns the corresponding
     permissions mapping.
@@ -53,9 +54,9 @@ class OctalPermissions:
         self.authority = authority
 
         if authority not in {'owner', 'group', 'others'}:
-            raise ValueError("'authority' input should be one of ('owner', 'group', 'others')")
+            raise ValueError("Authority should be one of ('owner', 'group', 'others')")
 
-        self._permissions: Authority = PERMISSIONS_MAPPING.get(authority)
+        self._permissions: Authority = PERMISSIONS_MAPPING[authority]
 
     @property
     def no_permissions(self) -> int:
