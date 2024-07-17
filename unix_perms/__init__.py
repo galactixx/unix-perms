@@ -6,7 +6,7 @@ from unix_perms.permissions import OctalPermissions
 from unix_perms.types import (PermissionsByte, PermissionsConfig,
                               PermissionsMode)
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 __all__ = [
     'InvalidOctalError',
     'OctalPermissions',
