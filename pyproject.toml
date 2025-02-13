@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "unix-perms"
-version = "0.5.0"
+version = "0.6.0"
 description = "Manage and interpret Unix file permissions with a Python package that provides intuitive tools for creating, validating, and describing permission modes."
 authors = ["galactixx"]
 readme = "README.md"
@@ -13,11 +13,11 @@ keywords = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pydantic = "^2.7.1"
+python = ">=3.8"
+pydantic = ">=2.7.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.1.2"
+pytest = ">=8.1.2"
 
 [build-system]
 requires = ["poetry-core"]

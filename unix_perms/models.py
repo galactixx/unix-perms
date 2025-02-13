@@ -14,6 +14,7 @@ class Authority(BaseModel):
         write (int): The octal for write only permissions.
         execute (int): The octal for execute only permissions.
     """
+
     read_write_execute: int
     read_write: int
     read: int

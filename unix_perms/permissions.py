@@ -10,7 +10,7 @@ OWNER_PERMISSIONS = Authority(
     read_execute=stat.S_IRUSR | stat.S_IXUSR,
     write_execute=stat.S_IWUSR | stat.S_IXUSR,
     write=stat.S_IWUSR,
-    execute=stat.S_IXUSR
+    execute=stat.S_IXUSR,
 )
 GROUP_PERMISSIONS = Authority(
     read_write_execute=stat.S_IRWXG,
@@ -19,7 +19,7 @@ GROUP_PERMISSIONS = Authority(
     read_execute=stat.S_IRGRP | stat.S_IXGRP,
     write_execute=stat.S_IWGRP | stat.S_IXGRP,
     write=stat.S_IWGRP,
-    execute=stat.S_IXGRP
+    execute=stat.S_IXGRP,
 )
 OTHERS_PERMISSIONS = Authority(
     read_write_execute=stat.S_IRWXO,
@@ -28,12 +28,15 @@ OTHERS_PERMISSIONS = Authority(
     read_execute=stat.S_IROTH | stat.S_IXOTH,
     write_execute=stat.S_IWOTH | stat.S_IXOTH,
     write=stat.S_IWOTH,
-    execute=stat.S_IXOTH
+    execute=stat.S_IXOTH,
 )
 
 PERMISSIONS_MAPPING = {
-    'owner': OWNER_PERMISSIONS, 'group': GROUP_PERMISSIONS, 'others': OTHERS_PERMISSIONS
+    "owner": OWNER_PERMISSIONS,
+    "group": GROUP_PERMISSIONS,
+    "others": OTHERS_PERMISSIONS,
 }
+
 
 class OctalPermissions:
     """
@@ -50,10 +53,11 @@ class OctalPermissions:
     Raises:
         ValueError: If 'authority' is not one of ('owner', 'group', 'others').
     """
-    def __init__(self, authority: Literal['owner', 'group', 'others']):
+
+    def __init__(self, authority: Literal["owner", "group", "others"]):
         self.authority = authority
 
-        if authority not in {'owner', 'group', 'others'}:
+        if authority not in {"owner", "group", "others"}:
             raise ValueError("Authority should be one of ('owner', 'group', 'others')")
 
         self._permissions: Authority = PERMISSIONS_MAPPING[authority]

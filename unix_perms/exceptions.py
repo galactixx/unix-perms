@@ -1,5 +1,6 @@
 class BaseError(Exception):
     """Base error class."""
+
     def __init__(self, message: str):
         self.message = message
 
@@ -9,5 +10,6 @@ class BaseError(Exception):
 
 class InvalidOctalError(BaseError):
     """Error that represents an invalid octal entered by user."""
+
     def __init__(self, message: str):
         super().__init__(message=message)

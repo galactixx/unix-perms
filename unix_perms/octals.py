@@ -3,18 +3,37 @@ from typing import Dict, Set, Union
 
 from unix_perms.exceptions import InvalidOctalError
 
-OctalConfig = namedtuple('OctalConfig', ['description', 'read', 'write', 'execute'])
+OctalConfig = namedtuple("OctalConfig", ["description", "read", "write", "execute"])
 
 VALID_OCTAL_DIGITS: Set[str] = {str(num) for num in range(8)}
 
-OCTAL_MODE_DIGIT_0 = OctalConfig(description='No permissions', read=False, write=False, execute=False)
-OCTAL_MODE_DIGIT_1 = OctalConfig(description='Execute permission only', read=False, write=False, execute=True)
-OCTAL_MODE_DIGIT_2 = OctalConfig(description='Write permission only', read=False, write=True, execute=False)
-OCTAL_MODE_DIGIT_3 = OctalConfig(description='Write and execute permissions', read=False, write=True, execute=True)
-OCTAL_MODE_DIGIT_4 = OctalConfig(description='Read permission only', read=True, write=False, execute=False)
-OCTAL_MODE_DIGIT_5 = OctalConfig(description='Read and execute permissions', read=True, write=False, execute=True)
-OCTAL_MODE_DIGIT_6 = OctalConfig(description='Read and write permissions', read=True, write=True, execute=False)
-OCTAL_MODE_DIGIT_7 = OctalConfig(description='Read, write, and execute permissions', read=True, write=True, execute=True)
+OCTAL_MODE_DIGIT_0 = OctalConfig(
+    description="No permissions", read=False, write=False, execute=False
+)
+OCTAL_MODE_DIGIT_1 = OctalConfig(
+    description="Execute permission only", read=False, write=False, execute=True
+)
+OCTAL_MODE_DIGIT_2 = OctalConfig(
+    description="Write permission only", read=False, write=True, execute=False
+)
+OCTAL_MODE_DIGIT_3 = OctalConfig(
+    description="Write and execute permissions", read=False, write=True, execute=True
+)
+OCTAL_MODE_DIGIT_4 = OctalConfig(
+    description="Read permission only", read=True, write=False, execute=False
+)
+OCTAL_MODE_DIGIT_5 = OctalConfig(
+    description="Read and execute permissions", read=True, write=False, execute=True
+)
+OCTAL_MODE_DIGIT_6 = OctalConfig(
+    description="Read and write permissions", read=True, write=True, execute=False
+)
+OCTAL_MODE_DIGIT_7 = OctalConfig(
+    description="Read, write, and execute permissions",
+    read=True,
+    write=True,
+    execute=True,
+)
 
 OCTAL_DIGIT_CONFIGS: Dict[int, OctalConfig] = {
     0: OCTAL_MODE_DIGIT_0,
@@ -24,8 +43,9 @@ OCTAL_DIGIT_CONFIGS: Dict[int, OctalConfig] = {
     4: OCTAL_MODE_DIGIT_4,
     5: OCTAL_MODE_DIGIT_5,
     6: OCTAL_MODE_DIGIT_6,
-    7: OCTAL_MODE_DIGIT_7
+    7: OCTAL_MODE_DIGIT_7,
 }
+
 
 def _get_octal_digit_config(octal_digit: int) -> OctalConfig:
     """
@@ -51,7 +71,7 @@ def from_octal_digit_to_config(octal_digit: Union[str, int]) -> OctalConfig:
 
     """
     if not isinstance(octal_digit, (str, int)):
-        message_core = 'Expected a string or integer object'
+        message_core = "Expected a string or integer object"
         raise TypeError(f"{message_core}, but got {type(octal_digit).__name__}")
 
     if isinstance(octal_digit, str):
@@ -75,13 +95,13 @@ def _octal_validation(octal: str) -> str:
 
     if not 1 <= octal_string_length <= 3:
         raise InvalidOctalError(
-            'Invalid octal representation length, must have a length ranging from 0 to 3'
+            "Invalid octal representation length, must have a length ranging from 0 to 3"
         )
 
     any_invalid_digits: bool = any(digit not in VALID_OCTAL_DIGITS for digit in octal)
     if any_invalid_digits:
         raise InvalidOctalError(
-            'Invalid digits in octal representation, digits must range from 0 to 7'
+            "Invalid digits in octal representation, digits must range from 0 to 7"
         )
 
     octal_int_string_repr: str = octal.zfill(3)
@@ -93,7 +113,7 @@ def _from_decimal_to_permissions_mode(octal: int) -> str:
     Private function to convert a decimal representation of an octal
     to a three digit string Unix permissions mode.
     """
-    octal_string: str = format(octal, 'o')
+    octal_string: str = format(octal, "o")
     octal_int_string_repr: str = _octal_validation(octal=octal_string)
     return octal_int_string_repr
 
@@ -115,7 +135,7 @@ def from_octal_to_permissions_mode(octal: Union[str, int]) -> str:
         str: A string representation of a Unix permissions mode.
     """
     if not isinstance(octal, (str, int)):
-        message_core = 'Expected a string or integer object'
+        message_core = "Expected a string or integer object"
         raise TypeError(f"{message_core}, but got {type(octal).__name__}")
 
     permissions_mode: str
@@ -123,7 +143,7 @@ def from_octal_to_permissions_mode(octal: Union[str, int]) -> str:
         int_base = 10
         message = "Must be a valid decimal representation of an octal"
 
-        if octal.startswith('0o'):
+        if octal.startswith("0o"):
             int_base = 8
             message = "Must be a valid octal literal"
 
