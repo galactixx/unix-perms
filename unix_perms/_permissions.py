@@ -1,7 +1,7 @@
 import stat
 from typing import Literal
 
-from unix_perms.models import Authority
+from unix_perms._models import Authority
 
 OWNER_PERMISSIONS = Authority(
     read_write_execute=stat.S_IRWXU,

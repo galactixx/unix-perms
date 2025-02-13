@@ -9,7 +9,7 @@ from unix_perms import (
     from_octal_to_permissions_mode,
     is_permissions_mode,
 )
-from unix_perms.octals import (
+from unix_perms._octals import (
     OCTAL_MODE_DIGIT_0,
     OCTAL_MODE_DIGIT_1,
     OCTAL_MODE_DIGIT_2,
